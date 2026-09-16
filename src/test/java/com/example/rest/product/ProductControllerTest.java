@@ -4,6 +4,8 @@ import io.grpc.Status;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -18,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,6 +52,19 @@ class ProductControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value("id-1"))
                 .andExpect(jsonPath("$.price").value("39.50"));
+    }
+
+    @Test
+    void create_withBlankName_returns400ProblemDetail() throws Exception {
+        mockMvc.perform(post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":" ","description":"desc","price":"39.50","stock":80}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").isNotEmpty());
     }
 
     @Test
@@ -113,6 +129,18 @@ class ProductControllerTest {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.stock").value(80));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"{}", "{\"delta\":null}"})
+    void adjustStock_withoutDelta_returns400ProblemDetail(String body) throws Exception {
+        mockMvc.perform(post("/api/products/id-1/stock")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").isNotEmpty());
     }
 
     @Test

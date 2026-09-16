@@ -26,26 +26,30 @@ class GrpcExceptionAdviceTest {
         ProblemDetail problem = advice.handleGrpc(
                 Status.INVALID_ARGUMENT.withDescription("bad").asRuntimeException());
         assertEquals(HttpStatus.BAD_REQUEST.value(), problem.getStatus());
+        assertEquals("bad", problem.getDetail());
     }
 
     @Test
     void mapsUnavailable() {
         ProblemDetail problem = advice.handleGrpc(
-                Status.UNAVAILABLE.asRuntimeException());
+                Status.UNAVAILABLE.withDescription("database host leaked").asRuntimeException());
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), problem.getStatus());
+        assertEquals("Upstream gRPC call failed", problem.getDetail());
     }
 
     @Test
     void mapsDeadlineExceeded() {
         ProblemDetail problem = advice.handleGrpc(
-                Status.DEADLINE_EXCEEDED.asRuntimeException());
+                Status.DEADLINE_EXCEEDED.withDescription("internal timeout leaked").asRuntimeException());
         assertEquals(HttpStatus.GATEWAY_TIMEOUT.value(), problem.getStatus());
+        assertEquals("Upstream gRPC call failed", problem.getDetail());
     }
 
     @Test
     void mapsOtherToBadGateway() {
         ProblemDetail problem = advice.handleGrpc(
-                Status.INTERNAL.asRuntimeException());
+                Status.INTERNAL.withDescription("stack detail leaked").asRuntimeException());
         assertEquals(HttpStatus.BAD_GATEWAY.value(), problem.getStatus());
+        assertEquals("Upstream gRPC call failed", problem.getDetail());
     }
 }

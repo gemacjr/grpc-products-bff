@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: product-rest-bff
+  mvc:
+    problemdetails:
+      enabled: true
   grpc:
     client:
       channel:

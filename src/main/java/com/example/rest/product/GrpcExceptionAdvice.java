@@ -19,7 +19,11 @@ public class GrpcExceptionAdvice {
             default -> HttpStatus.BAD_GATEWAY;
         };
         ProblemDetail problem = ProblemDetail.forStatus(http);
-        problem.setDetail(ex.getStatus().getDescription());
+        String detail = switch (ex.getStatus().getCode()) {
+            case NOT_FOUND, INVALID_ARGUMENT -> ex.getStatus().getDescription();
+            default -> "Upstream gRPC call failed";
+        };
+        problem.setDetail(detail);
         problem.setProperty("grpcCode", ex.getStatus().getCode().name());
         return problem;
     }
