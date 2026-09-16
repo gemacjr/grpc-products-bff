@@ -1,0 +1,11 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: product-rest-bff
+  grpc:
+    client:
+      channel:
+        product:
+          target: static://${PRODUCT_GRPC_HOST:localhost}:${PRODUCT_GRPC_PORT:9090}
