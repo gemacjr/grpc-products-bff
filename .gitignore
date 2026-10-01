@@ -44,3 +44,24 @@ bin/
 ### Worktrees ###
 .worktrees/
 .superpowers/
+
+# Added before first GitHub push
+node_modules/
+.next/
+dist/
+target/
+target.nosync/
+.gradle/
+.terraform/
+*.tfstate
+*.tfstate.*
+.env
+.env.*
+!.env.example
+.idea/
+.remember/
+.playwright-mcp/
+.venv/
+graphify-out/
+Pods/
+*.log

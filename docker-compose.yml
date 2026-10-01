@@ -1,0 +1,47 @@
+# Full local stack: Postgres -> gRPC product API (built from ../grpc_client) -> this REST BFF.
+# The BFF itself has no database; Postgres belongs to the gRPC API.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-products}
+      POSTGRES_USER: ${DB_USER:-product}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-product}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - product_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-product} -d ${DB_NAME:-products}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  product-api:
+    build: ${PRODUCT_API_CONTEXT:-../grpc_client}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-products}
+      DB_USER: ${DB_USER:-product}
+      DB_PASSWORD: ${DB_PASSWORD:-product}
+      GRPC_PORT: 9090
+      SERVER_PORT: 8080
+    ports:
+      - "${GRPC_PORT:-9090}:9090"
+
+  rest-bff:
+    build: .
+    depends_on:
+      - product-api
+    environment:
+      PRODUCT_GRPC_HOST: product-api
+      PRODUCT_GRPC_PORT: 9090
+    ports:
+      - "${REST_PORT:-8081}:8081"
+
+volumes:
+  product_pg_data:

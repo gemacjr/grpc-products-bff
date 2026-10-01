@@ -68,6 +68,28 @@ class ProductControllerTest {
     }
 
     @Test
+    void create_withoutStock_returns400ProblemDetail() throws Exception {
+        mockMvc.perform(post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Mouse","description":"desc","price":"39.50"}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"page=-1", "size=0", "size=101"})
+    void list_withOutOfRangePaging_returns400ProblemDetail(String query) throws Exception {
+        String[] kv = query.split("=");
+        mockMvc.perform(get("/api/products").param(kv[0], kv[1]))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
     void get_returns200() throws Exception {
         when(products.get("id-1")).thenReturn(sample());
 

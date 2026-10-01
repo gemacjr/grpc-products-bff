@@ -6,6 +6,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ProductDtoMapperTest {
 
@@ -39,5 +40,15 @@ class ProductDtoMapperTest {
         assertEquals(80, response.stock());
         assertEquals(created, response.createdAt());
         assertEquals(updated, response.updatedAt());
+    }
+
+    @Test
+    void toResponse_mapsUnsetTimestampsToNull() {
+        Product product = Product.newBuilder().setId("id-1").build();
+
+        ProductResponse response = ProductDtoMapper.toResponse(product);
+
+        assertNull(response.createdAt());
+        assertNull(response.updatedAt());
     }
 }

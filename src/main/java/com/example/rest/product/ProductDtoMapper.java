@@ -15,8 +15,8 @@ public final class ProductDtoMapper {
                 p.getDescription(),
                 p.getPrice(),
                 p.getStock(),
-                toInstant(p.getCreatedAt()),
-                toInstant(p.getUpdatedAt())
+                p.hasCreatedAt() ? toInstant(p.getCreatedAt()) : null,
+                p.hasUpdatedAt() ? toInstant(p.getUpdatedAt()) : null
         );
     }
 

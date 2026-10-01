@@ -1,0 +1,10 @@
+.gradle
+build
+.git
+.idea
+.remember
+.worktrees
+docs
+*.md
+.env
+.env.*

@@ -2,10 +2,11 @@ package com.example.rest.product;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record CreateProductRequestDto(
         @NotBlank String name,
         String description,
         @NotBlank String price,
-        @Min(0) int stock
+        @NotNull @Min(0) Integer stock
 ) {}
